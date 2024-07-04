@@ -1,6 +1,6 @@
 """
 Please Note:
-before execution, install:
+before execution, execute in terminal:
 pip install tensorflow
 pip install tf_keras
 pip install sentencepiece
