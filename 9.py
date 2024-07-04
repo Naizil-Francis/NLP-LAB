@@ -1,3 +1,12 @@
+"""
+Please Note:
+before execution, install:
+pip install tensorflow
+pip install tf_keras
+pip install sentencepiece
+pip install transformers
+pip install datasets
+"""
 import os
 import sys
 import transformers
