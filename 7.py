@@ -10,26 +10,26 @@ documents = [
     "Today Rama is not going outside to watch rain",
     "I am going to watch the movie tomorrow with Rama",
     "Tomorrow Rama is going to watch the rain at sea shore"
-]#document set
+]
 
-query = "Rama watching the rain" #query
+query = "Rama watching the rain"
 
-vectorizer = TfidfVectorizer(stop_words='english') #create tdf
-X_docs = vectorizer.fit_transform(documents).toarray()# fit the document in tdf and vectorise it
-X_query = vectorizer.transform([query]).toarray()#vectorise query document from tdf
+vectorizer = TfidfVectorizer(stop_words='english')
+X_docs = vectorizer.fit_transform(documents).toarray()
+X_query = vectorizer.transform([query]).toarray()
 
-lsa = TruncatedSVD(n_components=2)# SVD defining
-X_docs_lsa = lsa.fit_transform(X_docs)#fit doc to document tdf
-X_query_lsa = lsa.transform(X_query)# fit query  to tdf
+lsa = TruncatedSVD(n_components=4)
+X_docs_lsa = lsa.fit_transform(X_docs)
+X_query_lsa = lsa.transform(X_query)
 
-def compute_similarity_measures(doc_vectors, query_vector):#calculate similarity index
+def compute_similarity_measures(doc_vectors, query_vector):
     euclidean_distances = [euclidean(doc, query_vector) for doc in doc_vectors]
     cosine_similarities = cosine_similarity(doc_vectors, query_vector.reshape(1, -1)).flatten()
     
     jaccard_similarities = []
     dice_similarities = []
     
-    for doc in doc_vectors:#jaccard distance 
+    for doc in doc_vectors:
         doc_binary = np.array(doc > 0, dtype=int)
         query_binary = np.array(query_vector > 0, dtype=int)
         
@@ -48,34 +48,35 @@ cosine_ranking = np.argsort(-cosine_similarities)
 jaccard_ranking = np.argsort(-np.array(jaccard_similarities))
 dice_ranking = np.argsort(-np.array(dice_similarities))
 
-top_2_euclidean = euclidean_ranking[:2]
-top_2_cosine = cosine_ranking[:2]
-top_2_jaccard = jaccard_ranking[:2]
-top_2_dice = dice_ranking[:2]
-
-def plot_rankings(rankings, measure_names):
+def plot_rankings(distances, measure_names):
     plt.figure(figsize=(12, 8))
-    colors = ['b', 'g', 'r', 'c']  # Colors for each measure
-    bar_width = 0.2  # Width of each bar
-    positions = np.arange(len(rankings[0]))  # Positions for the bars
+    colors = ['b', 'g', 'r', 'c']
+    bar_width = 0.2
+    positions = np.arange(len(distances[0]))
 
-    for i, ranking in enumerate(rankings):
-        plt.bar(positions + i * bar_width, ranking, bar_width, label=measure_names[i], color=colors[i])
+    for i, dist in enumerate(distances):
+        plt.bar(positions + i * bar_width, dist , bar_width, label=measure_names[i], color=colors[i])
 
     plt.xlabel('Documents')
-    plt.ylabel('Ranking')
-    plt.title('Top 2 Documents Comparison')
-    plt.xticks(positions + bar_width, [f'D{i+1}' for i in range(len(rankings[0]))])
+    plt.ylabel('Similarities')
+    plt.title('Documents Comparison')
+    plt.xticks(positions + bar_width, [f'D{i+1}' for i in range(len(distances[0]))])
     plt.legend()
     plt.tight_layout()
     plt.show()
 
-print("Top 2 documents using Euclidean distance:", top_2_euclidean)
-print("Top 2 documents using Cosine similarity:", top_2_cosine)
-print("Top 2 documents using Jaccard similarity:", top_2_jaccard)
-print("Top 2 documents using Dice similarity coefficient:", top_2_dice)
+print("Top 2 documents using Euclidean distance:", euclidean_ranking[:2] + 1)
+print("Top 2 documents using Cosine similarity:", cosine_ranking[:2] + 1)
+print("Top 2 documents using Jaccard similarity:", jaccard_ranking[:2] + 1)
+print("Top 2 documents using Dice similarity coefficient:", dice_ranking[:2] + 1)
+
+print("Euclidean distance:", euclidean_distances)
+print("Cosine similarity:", cosine_similarities)
+print("Jaccard similarity:", jaccard_similarities)
+print("Dice similarity coefficient:", dice_similarities)
 
 measure_names = ["Euclidean Distance", "Cosine Similarity", "Jaccard Similarity", "Dice Similarity"]
-rankings = [top_2_euclidean, top_2_cosine, top_2_jaccard, top_2_dice]
+dist = [euclidean_distances, cosine_similarities, jaccard_similarities, dice_similarities]
 
-plot_rankings(rankings, measure_names)
+plot_rankings(dist, measure_names)
+
